@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAA3 - Trigonométrie</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #45b7d1 0%, #2c5aa0 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .triangle-display {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .triangle-canvas {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            border: 2px solid #45b7d1;
+            border-radius: 10px;
+            margin: 20px auto;
+            background: #f8f9fa;
+        }
+
+        .triangle-info {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .exercise-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .questions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .question-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #45b7d1;
+        }
+
+        .question-label {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .question-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: #45b7d1;
+            box-shadow: 0 0 0 3px rgba(69, 183, 209, 0.1);
+        }
+
+        .result-indicator {
+            font-size: 1.3rem;
+            margin-left: 10px;
+        }
+
+        .buttons-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 25px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #45b7d1 0%, #2c5aa0 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .advice-section {
+            margin-top: 25px;
+        }
+
+        .advice-toggle {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .advice-content {
+            display: none;
+            background: #e8f4f8;
+            border: 2px solid #45b7d1;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 10px;
+            line-height: 1.8;
+        }
+
+        .advice-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .formula-highlight {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .hint-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .questions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .triangle-canvas {
+                height: 250px;
+            }
+        }
+
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .buttons-row, .advice-section { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📐 UAA3 : Trigonométrie</h1>
+                <p>Maîtrisez les relations trigonométriques dans le triangle rectangle</p>
+            </div>
+            <a href="index.html" class="back-btn">
+                ⟵ Retour à l'accueil
+            </a>
+        </div>
+
+        <div class="content">
+            <div class="triangle-display">
+                <h2>🔺 Triangle rectangle actuel</h2>
+                <canvas id="triangle-canvas" class="triangle-canvas"></canvas>
+                <div id="triangle-info" class="triangle-info">
+                    Cliquez sur "Nouvel exercice" pour générer un triangle rectangle
+                </div>
+            </div>
+
+            <div class="exercise-section">
+                <h2>📊 Questions trigonométriques</h2>
+                
+                <div class="questions-grid">
+                    <div class="question-item">
+                        <div class="question-label">sin(α) = ?</div>
+                        <input type="number" id="sin-input" class="question-input" step="0.001" placeholder="Votre réponse (3 décimales)">
+                        <span id="sin-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-label">cos(α) = ?</div>
+                        <input type="number" id="cos-input" class="question-input" step="0.001" placeholder="Votre réponse (3 décimales)">
+                        <span id="cos-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-label">tan(α) = ?</div>
+                        <input type="number" id="tan-input" class="question-input" step="0.001" placeholder="Votre réponse (3 décimales)">
+                        <span id="tan-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-label">Angle α (en degrés) = ?</div>
+                        <input type="number" id="angle-input" class="question-input" step="0.1" placeholder="Votre réponse (1 décimale)">
+                        <span id="angle-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-label">Hypoténuse = ?</div>
+                        <input type="number" id="hypotenuse-input" class="question-input" step="0.1" placeholder="Votre réponse">
+                        <span id="hypotenuse-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="question-item">
+                        <div class="question-label">Côté opposé = ?</div>
+                        <input type="number" id="opposite-input" class="question-input" step="0.1" placeholder="Votre réponse">
+                        <span id="opposite-result" class="result-indicator"></span>
+                    </div>
+                </div>
+
+                <div id="hints-container"></div>
+
+                <div class="buttons-row">
+                    <button class="btn btn-primary" onclick="generateNewTriangle()">🎲 Nouvel exercice</button>
+                    <button class="btn btn-secondary" onclick="checkAnswers()">✅ Vérifier</button>
+                    <button class="btn btn-success" onclick="showAllAnswers()">💡 Révéler les réponses</button>
+                    <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimer/PDF</button>
+                </div>
+            </div>
+
+            <div class="advice-section">
+                <button class="advice-toggle" onclick="toggleAdvice()">
+                    <span>🧭</span>
+                    <span>Conseils de trigonométrie</span>
+                    <span id="advice-arrow">▼</span>
+                </button>
+                <div id="advice-content" class="advice-content">
+                    <h3>📚 Formules trigonométriques essentielles :</h3>
+                    
+                    <div class="formula-highlight">
+                        sin(α) = côté opposé / hypoténuse
+                    </div>
+                    
+                    <div class="formula-highlight">
+                        cos(α) = côté adjacent / hypoténuse
+                    </div>
+                    
+                    <div class="formula-highlight">
+                        tan(α) = côté opposé / côté adjacent = sin(α) / cos(α)
+                    </div>
+                    
+                    <p><strong>💡 Mnémotechnique SOH-CAH-TOA :</strong></p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li><strong>S</strong>inus = <strong>O</strong>pposé / <strong>H</strong>ypoténuse</li>
+                        <li><strong>C</strong>osinus = <strong>A</strong>djacent / <strong>H</strong>ypoténuse</li>
+                        <li><strong>T</strong>angente = <strong>O</strong>pposé / <strong>A</strong>djacent</li>
+                    </ul>
+                    
+                    <p><strong>🔄 Fonctions réciproques :</strong></p>
+                    <ul style="margin: 10px 0 10px 20px;">
+                        <li>α = arcsin(sin(α)) ou sin⁻¹(sin(α))</li>
+                        <li>α = arccos(cos(α)) ou cos⁻¹(cos(α))</li>
+                        <li>α = arctan(tan(α)) ou tan⁻¹(tan(α))</li>
+                    </ul>
+                    
+                    <p><strong>📏 Théorème de Pythagore :</strong> a² + b² = c² (où c est l'hypoténuse)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTriangle = {};
+        let correctAnswers = {};
+        let attempts = {};
+        let hintsShown = {};
+
+        // Initialiser les variables
+        function initializeExercise() {
+            attempts = {
+                sin: 0, cos: 0, tan: 0, angle: 0, hypotenuse: 0, opposite: 0
+            };
+            hintsShown = {
+                sin: 0, cos: 0, tan: 0, angle: 0, hypotenuse: 0, opposite: 0
+            };
+        }
+
+        // Générer un nouveau triangle rectangle
+        function generateNewTriangle() {
+            // Générer des valeurs aléatoires pour créer un triangle intéressant
+            const adjacent = Math.floor(Math.random() * 8) + 3; // Entre 3 et 10
+            const opposite = Math.floor(Math.random() * 8) + 3; // Entre 3 et 10
+            const hypotenuse = Math.sqrt(adjacent * adjacent + opposite * opposite);
+            const angleAlpha = Math.atan(opposite / adjacent) * (180 / Math.PI);
+            
+            currentTriangle = {
+                adjacent: adjacent,
+                opposite: opposite,
+                hypotenuse: parseFloat(hypotenuse.toFixed(2)),
+                angle: parseFloat(angleAlpha.toFixed(1))
+            };
+            
+            calculateCorrectAnswers();
+            resetInterface();
+            drawTriangle();
+            updateTriangleInfo();
+            initializeExercise();
+        }
+
+        // Calculer les réponses correctes
+        function calculateCorrectAnswers() {
+            const { adjacent, opposite, hypotenuse, angle } = currentTriangle;
+            
+            correctAnswers = {
+                sin: parseFloat((opposite / hypotenuse).toFixed(3)),
+                cos: parseFloat((adjacent / hypotenuse).toFixed(3)),
+                tan: parseFloat((opposite / adjacent).toFixed(3)),
+                angle: angle,
+                hypotenuse: hypotenuse,
+                opposite: opposite
+            };
+        }
+
+        // Dessiner le triangle sur canvas
+        function drawTriangle() {
+            const canvas = document.getElementById('triangle-canvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Calculer les positions pour un triangle bien proportionné
+            const scale = Math.min(width, height) / 15;
+            const startX = width * 0.2;
+            const startY = height * 0.8;
+            const adjLength = currentTriangle.adjacent * scale;
+            const oppLength = currentTriangle.opposite * scale;
+            
+            // Points du triangle
+            const A = { x: startX, y: startY }; // Angle droit
+            const B = { x: startX + adjLength, y: startY }; // Extrémité côté adjacent
+            const C = { x: startX, y: startY - oppLength }; // Extrémité côté opposé
+            
+            // Dessiner le triangle
+            ctx.beginPath();
+            ctx.strokeStyle = '#45b7d1';
+            ctx.lineWidth = 3;
+            ctx.moveTo(A.x, A.y);
+            ctx.lineTo(B.x, B.y);
+            ctx.lineTo(C.x, C.y);
+            ctx.lineTo(A.x, A.y);
+            ctx.stroke();
+            
+            // Dessiner l'angle droit
+            const squareSize = 15;
+            ctx.beginPath();
+            ctx.strokeStyle = '#45b7d1';
+            ctx.lineWidth = 2;
+            ctx.rect(A.x, A.y - squareSize, squareSize, squareSize);
+            ctx.stroke();
+            
+            // Dessiner l'angle α
+            ctx.beginPath();
+            ctx.strokeStyle = '#e17055';
+            ctx.lineWidth = 2;
+            ctx.arc(B.x, B.y, 20, Math.PI, Math.PI + currentTriangle.angle * (Math.PI / 180));
+            ctx.stroke();
+            
+            // Labels des côtés
+            ctx.fillStyle = '#2d3436';
+            ctx.font = 'bold 14px Arial';
+            ctx.textAlign = 'center';
+            
+            // Côté adjacent
+            ctx.fillText(`adj = ${currentTriangle.adjacent}`, (A.x + B.x) / 2, A.y + 20);
+            
+            // Côté opposé
+            ctx.save();
+            ctx.translate((A.x + C.x) / 2 - 15, (A.y + C.y) / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(`opp = ${currentTriangle.opposite}`, 0, 0);
+            ctx.restore();
+            
+            // Hypoténuse (cachée dans cet exercice)
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.fillText('hyp = ?', (B.x + C.x) / 2 + 10, (B.y + C.y) / 2);
+            
+            // Label angle α
+            ctx.fillStyle = '#e17055';
+            ctx.font = 'bold 16px Arial';
+            ctx.fillText('α', B.x - 25, B.y + 5);
+        }
+
+        // Mettre à jour les informations du triangle
+        function updateTriangleInfo() {
+            const info = document.getElementById('triangle-info');
+            info.innerHTML = `
+                <strong>Triangle rectangle :</strong> 
+                Côté adjacent = ${currentTriangle.adjacent} | 
+                Côté opposé = ${currentTriangle.opposite} | 
+                Calculez les autres valeurs !
+            `;
+        }
+
+        // Réinitialiser l'interface
+        function resetInterface() {
+            const inputs = ['sin', 'cos', 'tan', 'angle', 'hypotenuse', 'opposite'];
+            inputs.forEach(input => {
+                document.getElementById(`${input}-input`).value = '';
+                document.getElementById(`${input}-result`).textContent = '';
+                document.getElementById(`${input}-input`).style.borderColor = '#ddd';
+            });
+            
+            document.getElementById('hints-container').innerHTML = '';
+        }
+
+        // Vérifier les réponses
+        function checkAnswers() {
+            if (!currentTriangle.adjacent) {
+                alert('Veuillez d\'abord générer un exercice !');
+                return;
+            }
+
+            const inputs = {
+                sin: parseFloat(document.getElementById('sin-input').value),
+                cos: parseFloat(document.getElementById('cos-input').value),
+                tan: parseFloat(document.getElementById('tan-input').value),
+                angle: parseFloat(document.getElementById('angle-input').value),
+                hypotenuse: parseFloat(document.getElementById('hypotenuse-input').value),
+                opposite: parseFloat(document.getElementById('opposite-input').value)
+            };
+
+            Object.keys(inputs).forEach(key => {
+                const inputElement = document.getElementById(`${key}-input`);
+                const resultElement = document.getElementById(`${key}-result`);
+                
+                if (isNaN(inputs[key])) {
+                    inputElement.style.borderColor = '#ffa502';
+                    resultElement.textContent = '⚠️';
+                    return;
+                }
+
+                let tolerance = key === 'angle' ? 0.1 : 0.01;
+                const isCorrect = Math.abs(inputs[key] - correctAnswers[key]) <= tolerance;
+                
+                if (isCorrect) {
+                    inputElement.style.borderColor = '#00b894';
+                    resultElement.textContent = '✅';
+                } else {
+                    inputElement.style.borderColor = '#ff6b6b';
+                    resultElement.textContent = '❌';
+                    attempts[key]++;
+                    showHint(key);
+                }
+            });
+        }
+
+        // Afficher des indices progressifs
+        function showHint(type) {
+            if (hintsShown[type] >= 3) return;
+            
+            hintsShown[type]++;
+            const hintsContainer = document.getElementById('hints-container');
+            
+            let hintText = '';
+            const { adjacent, opposite, hypotenuse } = currentTriangle;
+            
+            switch(type) {
+                case 'sin':
+                    if (hintsShown[type] === 1) {
+                        hintText = `💡 sin(α) = côté opposé / hypoténuse`;
+                    } else if (hintsShown[type] === 2) {
+                        hintText = `💡 sin(α) = ${opposite} / hypoténuse`;
+                    } else {
+                        hintText = `💡 sin(α) = ${opposite} / ${hypotenuse} = ${correctAnswers.sin}`;
+                    }
+                    break;
+                    
+                case 'cos':
+                    if (hintsShown[type] === 1) {
+                        hintText = `💡 cos(α) = côté adjacent / hypoténuse`;
+                    } else if (hintsShown[type] === 2) {
+                        hintText = `💡 cos(α) = ${adjacent} / hypoténuse`;
+                    } else {
+                        hintText = `💡 cos(α) = ${adjacent} / ${hypotenuse} = ${correctAnswers.cos}`;
+                    }
+                    break;
+                    
+                case 'tan':
+                    if (hintsShown[type] === 1) {
+                        hintText = `💡 tan(α) = côté opposé / côté adjacent`;
+                    } else if (hintsShown[type] === 2) {
+                        hintText = `💡 tan(α) = ${opposite} / ${adjacent}`;
+                    } else {
+                        hintText = `💡 tan(α) = ${opposite} / ${adjacent} = ${correctAnswers.tan}`;
+                    }
+                    break;
+                    
+                case 'angle':
+                    if (hintsShown[type] === 1) {
+                        hintText = `💡 α = arctan(opposé / adjacent)`;
+                    } else if (hintsShown[type] === 2) {
+                        hintText = `💡 α = arctan(${opposite} / ${adjacent})`;
+                    } else {
+                        hintText = `💡 α = arctan(${correctAnswers.tan}) = ${correctAnswers.angle}°`;
+                    }
+                    break;
+                    
+                case 'hypotenuse':
+                    if (hintsShown[type] === 1) {
+                        hintText = `💡 Utilisez le théorème de Pythagore : h² = adj² + opp²`;
+                    } else if (hintsShown[type] === 2) {
+                        hintText = `💡 h² = ${adjacent}² + ${opposite}² = ${adjacent*adjacent + opposite*opposite}`;
+                    } else {
+                        hintText = `💡 h = √${adjacent*adjacent + opposite*opposite} = ${correctAnswers.hypotenuse}`;
+                    }
+                    break;
+                    
+                case 'opposite':
+                    if (hintsShown[type] === 1) {
+                        hintText = `💡 Le côté opposé est déjà donné dans le triangle !`;
+                    } else {
+                        hintText = `💡 Côté opposé = ${correctAnswers.opposite}`;
+                    }
+                    break;
+            }
+            
+            const hintBox = document.createElement('div');
+            hintBox.className = 'hint-box show';
+            hintBox.innerHTML = `<strong>Indice ${hintsShown[type]} :</strong> ${hintText}`;
+            hintsContainer.appendChild(hintBox);
+        }
+
+        // Révéler toutes les réponses
+        function showAllAnswers() {
+            if (!currentTriangle.adjacent) {
+                alert('Veuillez d\'abord générer un exercice !');
+                return;
+            }
+
+            document.getElementById('sin-input').value = correctAnswers.sin;
+            document.getElementById('cos-input').value = correctAnswers.cos;
+            document.getElementById('tan-input').value = correctAnswers.tan;
+            document.getElementById('angle-input').value = correctAnswers.angle;
+            document.getElementById('hypotenuse-input').value = correctAnswers.hypotenuse;
+            document.getElementById('opposite-input').value = correctAnswers.opposite;
+            
+            // Mettre tous les indicateurs en vert
+            Object.keys(correctAnswers).forEach(key => {
+                document.getElementById(`${key}-input`).style.borderColor = '#00b894';
+                document.getElementById(`${key}-result`).textContent = '✅';
+            });
+        }
+
+        // Basculer l'affichage des conseils
+        function toggleAdvice() {
+            const content = document.getElementById('advice-content');
+            const arrow = document.getElementById('advice-arrow');
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('show');
+                arrow.textContent = '▲';
+            }
+        }
+
+        // Validation en temps réel
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['sin-input', 'cos-input', 'tan-input', 'angle-input', 'hypotenuse-input', 'opposite-input'];
+            
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                input.addEventListener('input', function() {
+                    this.style.borderColor = '#ddd';
+                    const resultId = inputId.replace('-input', '-result');
+                    document.getElementById(resultId).textContent = '';
+                });
+                
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkAnswers();
+                    }
+                });
+            });
+        });
+
+        // Générer un exercice au chargement
+        window.onload = function() {
+            generateNewTriangle();
+        };
+    </script>
+</body>
+</html>

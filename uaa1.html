@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAA1 - Statistiques descriptives</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .exercise-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-display {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .stat-label {
+            font-weight: bold;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        .stat-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .stat-input:focus {
+            outline: none;
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+
+        .result-indicator {
+            margin-left: 10px;
+            font-size: 1.2rem;
+        }
+
+        .buttons-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .advice-section {
+            margin-top: 20px;
+        }
+
+        .advice-toggle {
+            background: linear-gradient(135deg, #fdcb6e 0%, #e17055 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .advice-content {
+            display: none;
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .advice-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hint-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .buttons-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .buttons-row, .advice-section { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>📊 UAA1 : Statistiques descriptives</h1>
+                <p>Exercices interactifs avec correction automatique</p>
+            </div>
+            <a href="index.html" class="back-btn">
+                ⟵ Retour à l'accueil
+            </a>
+        </div>
+
+        <div class="content">
+            <div class="exercise-section">
+                <h2>🎲 Jeu de données aléatoire</h2>
+                <div id="data-display" class="data-display">
+                    Cliquez sur "Nouvel exercice" pour générer des données
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Moyenne :</div>
+                        <input type="number" id="moyenne-input" class="stat-input" step="0.01" placeholder="Votre réponse">
+                        <span id="moyenne-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Médiane :</div>
+                        <input type="number" id="mediane-input" class="stat-input" step="0.01" placeholder="Votre réponse">
+                        <span id="mediane-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Mode :</div>
+                        <input type="text" id="mode-input" class="stat-input" placeholder="Votre réponse">
+                        <span id="mode-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Étendue :</div>
+                        <input type="number" id="etendue-input" class="stat-input" step="0.01" placeholder="Votre réponse">
+                        <span id="etendue-result" class="result-indicator"></span>
+                    </div>
+
+                    <div class="stat-item">
+                        <div class="stat-label">Écart-type :</div>
+                        <input type="number" id="ecart-type-input" class="stat-input" step="0.01" placeholder="Votre réponse">
+                        <span id="ecart-type-result" class="result-indicator"></span>
+                    </div>
+                </div>
+
+                <div id="hints-container"></div>
+
+                <div class="buttons-row">
+                    <button class="btn btn-primary" onclick="generateNewExercise()">🎲 Nouvel exercice</button>
+                    <button class="btn btn-secondary" onclick="checkAnswers()">✅ Vérifier</button>
+                    <button class="btn btn-success" onclick="showAllAnswers()">💡 Révéler les réponses</button>
+                    <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimer/PDF</button>
+                </div>
+            </div>
+
+            <div class="advice-section">
+                <button class="advice-toggle" onclick="toggleAdvice()">
+                    <span>🧭</span>
+                    <span>Conseils de résolution</span>
+                    <span id="advice-arrow">▼</span>
+                </button>
+                <div id="advice-content" class="advice-content">
+                    <h3>📚 Comment calculer les statistiques descriptives :</h3>
+                    
+                    <p><strong>• Moyenne :</strong> Somme de toutes les valeurs ÷ nombre de valeurs</p>
+                    
+                    <p><strong>• Médiane :</strong> Classer les valeurs par ordre croissant. Si n est impair, prendre la valeur du milieu. Si n est pair, faire la moyenne des deux valeurs centrales.</p>
+                    
+                    <p><strong>• Mode :</strong> La ou les valeur(s) qui apparaît/apparaissent le plus souvent. S'il n'y en a pas, écrire "Aucun".</p>
+                    
+                    <p><strong>• Étendue :</strong> Valeur maximale - Valeur minimale</p>
+                    
+                    <p><strong>• Écart-type :</strong> √(Σ(xi - moyenne)² / n) où xi sont les valeurs individuelles et n le nombre total de valeurs.</p>
+                    
+                    <p><strong>💡 Astuce :</strong> Utilisez une calculatrice pour les calculs complexes et vérifiez vos résultats étape par étape !</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = [];
+        let correctAnswers = {};
+        let attempts = {};
+        let hintsShown = {};
+
+        // Initialiser les compteurs de tentatives
+        function initializeAttempts() {
+            attempts = {
+                moyenne: 0,
+                mediane: 0,
+                mode: 0,
+                etendue: 0,
+                ecartType: 0
+            };
+            hintsShown = {
+                moyenne: 0,
+                mediane: 0,
+                mode: 0,
+                etendue: 0,
+                ecartType: 0
+            };
+        }
+
+        // Générer un nouveau jeu de données
+        function generateNewExercise() {
+            const size = Math.floor(Math.random() * 11) + 10; // Entre 10 et 20 valeurs
+            currentData = [];
+            
+            for (let i = 0; i < size; i++) {
+                currentData.push(Math.floor(Math.random() * 50) + 1); // Valeurs entre 1 et 50
+            }
+            
+            // Calculer les réponses correctes
+            calculateCorrectAnswers();
+            
+            // Réinitialiser l'interface
+            resetInterface();
+            
+            // Afficher les données
+            document.getElementById('data-display').textContent = 
+                `Données : ${currentData.join(', ')} (${currentData.length} valeurs)`;
+            
+            initializeAttempts();
+        }
+
+        // Calculer les réponses correctes
+        function calculateCorrectAnswers() {
+            correctAnswers = {};
+            
+            // Moyenne
+            const sum = currentData.reduce((a, b) => a + b, 0);
+            correctAnswers.moyenne = parseFloat((sum / currentData.length).toFixed(2));
+            
+            // Médiane
+            const sortedData = [...currentData].sort((a, b) => a - b);
+            const mid = Math.floor(sortedData.length / 2);
+            if (sortedData.length % 2 === 0) {
+                correctAnswers.mediane = parseFloat(((sortedData[mid - 1] + sortedData[mid]) / 2).toFixed(2));
+            } else {
+                correctAnswers.mediane = sortedData[mid];
+            }
+            
+            // Mode
+            const frequency = {};
+            currentData.forEach(val => frequency[val] = (frequency[val] || 0) + 1);
+            const maxFreq = Math.max(...Object.values(frequency));
+            const modes = Object.keys(frequency).filter(key => frequency[key] === maxFreq);
+            
+            if (maxFreq === 1) {
+                correctAnswers.mode = "Aucun";
+            } else {
+                correctAnswers.mode = modes.sort((a, b) => a - b).join(', ');
+            }
+            
+            // Étendue
+            correctAnswers.etendue = Math.max(...currentData) - Math.min(...currentData);
+            
+            // Écart-type
+            const variance = currentData.reduce((acc, val) => {
+                return acc + Math.pow(val - correctAnswers.moyenne, 2);
+            }, 0) / currentData.length;
+            correctAnswers.ecartType = parseFloat(Math.sqrt(variance).toFixed(2));
+        }
+
+        // Réinitialiser l'interface
+        function resetInterface() {
+            ['moyenne', 'mediane', 'mode', 'etendue', 'ecart-type'].forEach(stat => {
+                document.getElementById(`${stat}-input`).value = '';
+                document.getElementById(`${stat}-result`).textContent = '';
+                document.getElementById(`${stat}-input`).style.borderColor = '#ddd';
+            });
+            
+            // Effacer les indices
+            document.getElementById('hints-container').innerHTML = '';
+        }
+
+        // Vérifier les réponses
+        function checkAnswers() {
+            if (currentData.length === 0) {
+                alert('Veuillez d\'abord générer un exercice !');
+                return;
+            }
+
+            const inputs = {
+                moyenne: parseFloat(document.getElementById('moyenne-input').value),
+                mediane: parseFloat(document.getElementById('mediane-input').value),
+                mode: document.getElementById('mode-input').value.trim(),
+                etendue: parseFloat(document.getElementById('etendue-input').value),
+                ecartType: parseFloat(document.getElementById('ecart-type-input').value)
+            };
+
+            ['moyenne', 'mediane', 'etendue', 'ecartType'].forEach(stat => {
+                const inputElement = document.getElementById(`${stat === 'ecartType' ? 'ecart-type' : stat}-input`);
+                const resultElement = document.getElementById(`${stat === 'ecartType' ? 'ecart-type' : stat}-result`);
+                
+                if (isNaN(inputs[stat])) {
+                    inputElement.style.borderColor = '#ffa502';
+                    resultElement.textContent = '⚠️';
+                    return;
+                }
+
+                const isCorrect = Math.abs(inputs[stat] - correctAnswers[stat]) < 0.01;
+                
+                if (isCorrect) {
+                    inputElement.style.borderColor = '#00b894';
+                    resultElement.textContent = '✅';
+                } else {
+                    inputElement.style.borderColor = '#ff6b6b';
+                    resultElement.textContent = '❌';
+                    attempts[stat]++;
+                    showHint(stat);
+                }
+            });
+
+            // Vérification spéciale pour le mode
+            const modeInput = document.getElementById('mode-input');
+            const modeResult = document.getElementById('mode-result');
+            
+            if (!inputs.mode) {
+                modeInput.style.borderColor = '#ffa502';
+                modeResult.textContent = '⚠️';
+            } else if (inputs.mode.toLowerCase() === correctAnswers.mode.toLowerCase()) {
+                modeInput.style.borderColor = '#00b894';
+                modeResult.textContent = '✅';
+            } else {
+                modeInput.style.borderColor = '#ff6b6b';
+                modeResult.textContent = '❌';
+                attempts.mode++;
+                showHint('mode');
+            }
+        }
+
+        // Afficher des indices progressifs
+        function showHint(statType) {
+            if (hintsShown[statType] >= 3) return; // Maximum 3 indices
+            
+            hintsShown[statType]++;
+            const hintsContainer = document.getElementById('hints-container');
+            
+            let hintText = '';
+            
+            switch(statType) {
+                case 'moyenne':
+                    if (hintsShown[statType] === 1) {
+                        hintText = `💡 Pour la moyenne : Additionnez toutes les valeurs (${currentData.join(' + ')})`;
+                    } else if (hintsShown[statType] === 2) {
+                        const sum = currentData.reduce((a, b) => a + b, 0);
+                        hintText = `💡 Somme = ${sum}, divisez par le nombre de valeurs (${currentData.length})`;
+                    } else {
+                        hintText = `💡 Calcul final : ${currentData.reduce((a, b) => a + b, 0)} ÷ ${currentData.length} = ${correctAnswers.moyenne}`;
+                    }
+                    break;
+                    
+                case 'mediane':
+                    if (hintsShown[statType] === 1) {
+                        hintText = `💡 Pour la médiane : Classez d'abord les données par ordre croissant`;
+                    } else if (hintsShown[statType] === 2) {
+                        const sorted = [...currentData].sort((a, b) => a - b);
+                        hintText = `💡 Données triées : ${sorted.join(', ')}. Position centrale : ${Math.ceil(sorted.length/2)}`;
+                    } else {
+                        hintText = `💡 La médiane est : ${correctAnswers.mediane}`;
+                    }
+                    break;
+                    
+                case 'mode':
+                    if (hintsShown[statType] === 1) {
+                        hintText = `💡 Pour le mode : Comptez la fréquence de chaque valeur`;
+                    } else if (hintsShown[statType] === 2) {
+                        const freq = {};
+                        currentData.forEach(val => freq[val] = (freq[val] || 0) + 1);
+                        const freqStr = Object.entries(freq).map(([val, count]) => `${val}:${count}fois`).join(', ');
+                        hintText = `💡 Fréquences : ${freqStr}`;
+                    } else {
+                        hintText = `💡 Le mode est : ${correctAnswers.mode}`;
+                    }
+                    break;
+                    
+                case 'etendue':
+                    if (hintsShown[statType] === 1) {
+                        hintText = `💡 Pour l'étendue : Trouvez le maximum et le minimum`;
+                    } else if (hintsShown[statType] === 2) {
+                        hintText = `💡 Max = ${Math.max(...currentData)}, Min = ${Math.min(...currentData)}`;
+                    } else {
+                        hintText = `💡 Étendue = ${Math.max(...currentData)} - ${Math.min(...currentData)} = ${correctAnswers.etendue}`;
+                    }
+                    break;
+                    
+                case 'ecartType':
+                    if (hintsShown[statType] === 1) {
+                        hintText = `💡 Pour l'écart-type : Calculez d'abord les écarts à la moyenne`;
+                    } else if (hintsShown[statType] === 2) {
+                        hintText = `💡 Formule : √(Σ(xi - moyenne)² / n) avec moyenne = ${correctAnswers.moyenne}`;
+                    } else {
+                        hintText = `💡 L'écart-type est : ${correctAnswers.ecartType}`;
+                    }
+                    break;
+            }
+            
+            const hintBox = document.createElement('div');
+            hintBox.className = 'hint-box show';
+            hintBox.innerHTML = `<strong>Indice ${hintsShown[statType]} :</strong> ${hintText}`;
+            hintsContainer.appendChild(hintBox);
+        }
+
+        // Révéler toutes les réponses
+        function showAllAnswers() {
+            if (currentData.length === 0) {
+                alert('Veuillez d\'abord générer un exercice !');
+                return;
+            }
+
+            document.getElementById('moyenne-input').value = correctAnswers.moyenne;
+            document.getElementById('mediane-input').value = correctAnswers.mediane;
+            document.getElementById('mode-input').value = correctAnswers.mode;
+            document.getElementById('etendue-input').value = correctAnswers.etendue;
+            document.getElementById('ecart-type-input').value = correctAnswers.ecartType;
+            
+            // Mettre tous les indicateurs en vert
+            ['moyenne', 'mediane', 'mode', 'etendue', 'ecart-type'].forEach(stat => {
+                document.getElementById(`${stat}-input`).style.borderColor = '#00b894';
+                document.getElementById(`${stat}-result`).textContent = '✅';
+            });
+            
+            // Afficher un résumé détaillé
+            const hintsContainer = document.getElementById('hints-container');
+            hintsContainer.innerHTML = `
+                <div class="hint-box show">
+                    <strong>📋 Résumé complet :</strong><br>
+                    • Moyenne : ${correctAnswers.moyenne} (somme: ${currentData.reduce((a, b) => a + b, 0)} ÷ ${currentData.length})<br>
+                    • Médiane : ${correctAnswers.mediane} (données triées: ${[...currentData].sort((a, b) => a - b).join(', ')})<br>
+                    • Mode : ${correctAnswers.mode}<br>
+                    • Étendue : ${correctAnswers.etendue} (${Math.max(...currentData)} - ${Math.min(...currentData)})<br>
+                    • Écart-type : ${correctAnswers.ecartType}
+                </div>
+            `;
+        }
+
+        // Basculer l'affichage des conseils
+        function toggleAdvice() {
+            const content = document.getElementById('advice-content');
+            const arrow = document.getElementById('advice-arrow');
+            
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+                arrow.textContent = '▼';
+            } else {
+                content.classList.add('show');
+                arrow.textContent = '▲';
+            }
+        }
+
+        // Validation en temps réel des entrées
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = ['moyenne-input', 'mediane-input', 'mode-input', 'etendue-input', 'ecart-type-input'];
+            
+            inputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                input.addEventListener('input', function() {
+                    // Réinitialiser les couleurs lors de la saisie
+                    this.style.borderColor = '#ddd';
+                    const resultId = inputId.replace('-input', '-result');
+                    document.getElementById(resultId).textContent = '';
+                });
+                
+                // Validation automatique sur Enter
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkAnswers();
+                    }
+                });
+            });
+        });
+
+        // Générer un exercice au chargement de la page
+        window.onload = function() {
+            generateNewExercise();
+        };
+    </script>
+</body>
+</html>
+            

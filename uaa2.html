@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAA2 - Géométrie dans l'espace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .geogebra-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .geogebra-frame {
+            width: 100%;
+            height: 500px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+
+        .controls-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .control-group {
+            background: #f1f3f4;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .control-group h3 {
+            color: #2d3436;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .solid-toggle {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .solid-toggle:hover {
+            background: #e8f5e8;
+            transform: translateX(5px);
+        }
+
+        .solid-toggle input[type="checkbox"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .solid-toggle label {
+            cursor: pointer;
+            font-weight: 500;
+            color: #2d3436;
+        }
+
+        .exercises-section {
+            margin-top: 30px;
+        }
+
+        .exercise-card {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .exercise-content {
+            display: none;
+            background: white;
+            color: #2d3436;
+            padding: 20px;
+            border-radius: 0 0 12px 12px;
+            margin-top: -12px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .exercise-content.show {
+            display: block;
+        }
+
+        .formula-box {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #fd79a8 0%, #fdcb6e 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .geogebra-frame {
+                height: 350px;
+            }
+            
+            .controls-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            .geogebra-container, .controls-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>🎯 UAA2 : Géométrie dans l'espace</h1>
+                <p>Exploration interactive des solides avec GeoGebra 3D</p>
+            </div>
+            <a href="index.html" class="back-btn">
+                ⟵ Retour à l'accueil
+            </a>
+        </div>
+
+        <div class="content">
+            <div class="info-panel">
+                <h3>🚀 Bienvenue dans l'espace 3D !</h3>
+                <p>Utilisez cette page pour explorer les solides géométriques, calculer leur volume et leur surface, et comprendre leurs propriétés dans un environnement interactif.</p>
+            </div>
+
+            <div class="section">
+                <h2>🔧 Panneau de contrôle des solides</h2>
+                <div class="controls-panel">
+                    <div class="control-group">
+                        <h3>📦 Polyèdres</h3>
+                        <div class="solid-toggle" onclick="toggleSolid('cube')">
+                            <input type="checkbox" id="cube-check">
+                            <label for="cube-check">Cube</label>
+                        </div>
+                        <div class="solid-toggle" onclick="toggleSolid('tetrahedron')">
+                            <input type="checkbox" id="tetrahedron-check">
+                            <label for="tetrahedron-check">Tétraèdre</label>
+                        </div>
+                        <div class="solid-toggle" onclick="toggleSolid('pyramid')">
+                            <input type="checkbox" id="pyramid-check">
+                            <label for="pyramid-check">Pyramide</label>
+                        </div>
+                        <div class="solid-toggle" onclick="toggleSolid('prism')">
+                            <input type="checkbox" id="prism-check">
+                            <label for="prism-check">Prisme</label>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>⭕ Solides de révolution</h3>
+                        <div class="solid-toggle" onclick="toggleSolid('sphere')">
+                            <input type="checkbox" id="sphere-check">
+                            <label for="sphere-check">Sphère</label>
+                        </div>
+                        <div class="solid-toggle" onclick="toggleSolid('cylinder')">
+                            <input type="checkbox" id="cylinder-check">
+                            <label for="cylinder-check">Cylindre</label>
+                        </div>
+                        <div class="solid-toggle" onclick="toggleSolid('cone')">
+                            <input type="checkbox" id="cone-check">
+                            <label for="cone-check">Cône</label>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <h3>⚙️ Actions</h3>
+                        <button class="btn btn-primary" onclick="showAllSolids()">👁️ Tout afficher</button>
+                        <button class="btn btn-secondary" onclick="hideAllSolids()">🙈 Tout masquer</button>
+                        <button class="btn btn-primary" onclick="resetView()">🔄 Réinitialiser la vue</button>
+                        <button class="btn btn-secondary" onclick="randomSolid()">🎲 Solide aléatoire</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="geogebra-container">
+                <iframe id="geogebra-3d" class="geogebra-frame"
+                    src="https://www.geogebra.org/classic/3d">
+                </iframe>
+                <p style="margin-top: 15px; color: #666;">
+                    <strong>Instructions :</strong> Utilisez les contrôles ci-dessus pour afficher/masquer les solides. 
+                    Dans GeoGebra : clic gauche + glisser pour rotation, molette pour zoom, clic droit pour options.
+                </p>
+            </div>
+
+            <div class="exercises-section">
+                <h2>📚 Exercices guidés</h2>
+
+                <div class="exercise-card" onclick="toggleExercise('exercise1')">
+                    <h3>🧮 Exercice 1 : Calcul du volume d'un cube</h3>
+                    <p>Apprenez à calculer le volume d'un cube connaissant son arête</p>
+                </div>
+                <div id="exercise1-content" class="exercise-content">
+                    <div class="formula-box">
+                        <strong>Formule :</strong> Volume = a³ (où a = longueur de l'arête)
+                    </div>
+                    <p><strong>Exemple :</strong> Un cube a une arête de 5 cm.</p>
+                    <p><strong>Solution :</strong> V = 5³ = 125 cm³</p>
+                    <p><strong>À vous :</strong> Calculez le volume d'un cube d'arête 8 cm.</p>
+                    <button class="btn btn-primary" onclick="showSolution('cube')">💡 Voir la solution</button>
+                </div>
+
+                <div class="exercise-card" onclick="toggleExercise('exercise2')">
+                    <h3>🏺 Exercice 2 : Surface d'une sphère</h3>
+                    <p>Calculez l'aire de la surface d'une sphère</p>
+                </div>
+                <div id="exercise2-content" class="exercise-content">
+                    <div class="formula-box">
+                        <strong>Formule :</strong> Surface = 4πr² (où r = rayon)
+                    </div>
+                    <p><strong>Exemple :</strong> Une sphère a un rayon de 3 cm.</p>
+                    <p><strong>Solution :</strong> S = 4π × 3² = 4π × 9 = 36π ≈ 113.1 cm²</p>
+                    <p><strong>À vous :</strong> Calculez la surface d'une sphère de rayon 6 cm.</p>
+                    <button class="btn btn-primary" onclick="showSolution('sphere')">💡 Voir la solution</button>
+                </div>
+
+                <div class="exercise-card" onclick="toggleExercise('exercise3')">
+                    <h3>🛢️ Exercice 3 : Volume d'un cylindre</h3>
+                    <p>Maîtrisez le calcul du volume cylindrique</p>
+                </div>
+                <div id="exercise3-content" class="exercise-content">
+                    <div class="formula-box">
+                        <strong>Formule :</strong> Volume = πr²h (où r = rayon de base, h = hauteur)
+                    </div>
+                    <p><strong>Exemple :</strong> Un cylindre : rayon = 4 cm, hauteur = 10 cm.</p>
+                    <p><strong>Solution :</strong> V = π × 4² × 10 = π × 16 × 10 = 160π ≈ 502.7 cm³</p>
+                    <p><strong>À vous :</strong> Cylindre avec r = 2 cm et h = 15 cm.</p>
+                    <button class="btn btn-primary" onclick="showSolution('cylinder')">💡 Voir la solution</button>
+                </div>
+
+                <div class="exercise-card" onclick="toggleExercise('exercise4')">
+                    <h3>🔺 Exercice 4 : Volume d'une pyramide</h3>
+                    <p>Découvrez le calcul du volume pyramidal</p>
+                </div>
+                <div id="exercise4-content" class="exercise-content">
+                    <div class="formula-box">
+                        <strong>Formule :</strong> Volume = (1/3) × Aire_base × hauteur
+                    </div>
+                    <p><strong>Exemple :</strong> Pyramide à base carrée (côté = 6 cm, hauteur = 9 cm).</p>
+                    <p><strong>Solution :</strong> V = (1/3) × 6² × 9 = (1/3) × 36 × 9 = 108 cm³</p>
+                    <p><strong>À vous :</strong> Base carrée 4×4 cm, hauteur = 12 cm.</p>
+                    <button class="btn btn-primary" onclick="showSolution('pyramid')">💡 Voir la solution</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>📋 Résumé des formules importantes</h2>
+                <div class="formula-box">
+                    <strong>📦 Cube :</strong> V = a³, Surface = 6a²<br><br>
+                    <strong>⭕ Sphère :</strong> V = (4/3)πr³, Surface = 4πr²<br><br>
+                    <strong>🛢️ Cylindre :</strong> V = πr²h, Surface = 2πr² + 2πrh<br><br>
+                    <strong>🔺 Pyramide :</strong> V = (1/3) × Aire_base × h<br><br>
+                    <strong>🔻 Cône :</strong> V = (1/3)πr²h, Surface = πr² + πr√(r²+h²)
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimer les formules</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let visibleSolids = new Set();
+
+        // Basculer l'affichage d'un solide
+        function toggleSolid(solidName) {
+            const checkbox = document.getElementById(solidName + '-check');
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                visibleSolids.add(solidName);
+                showSolidInGeoGebra(solidName);
+            } else {
+                visibleSolids.delete(solidName);
+                hideSolidInGeoGebra(solidName);
+            }
+            
+            updateGeoGebraDisplay();
+        }
+
+        // Afficher tous les solides
+        function showAllSolids() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][id$="-check"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+                const solidName = checkbox.id.replace('-check', '');
+                visibleSolids.add(solidName);
+            });
+            updateGeoGebraDisplay();
+        }
+
+        // Masquer tous les solides
+        function hideAllSolids() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"][id$="-check"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const solidName = checkbox.id.replace('-check', '');
+                visibleSolids.delete(solidName);
+            });
+            updateGeoGebraDisplay();
+        }
+
+        // Réinitialiser la vue
+        function resetView() {
+            // Simulation de réinitialisation de GeoGebra
+            const iframe = document.getElementById('geogebra-3d');
+            iframe.style.opacity = '0.5';
+            setTimeout(() => {
+                iframe.style.opacity = '1';
+            }, 500);
+        }
+
+        // Afficher un solide aléatoire
+        function randomSolid() {
+            hideAllSolids();
+            const solids = ['cube', 'tetrahedron', 'pyramid', 'prism', 'sphere', 'cylinder', 'cone'];
+            const randomSolid = solids[Math.floor(Math.random() * solids.length)];
+            
+            setTimeout(() => {
+                document.getElementById(randomSolid + '-check').checked = true;
+                visibleSolids.add(randomSolid);
+                updateGeoGebraDisplay();
+            }, 300);
+        }
+
+        // Mettre à jour l'affichage GeoGebra (simulation)
+        function updateGeoGebraDisplay() {
+            const iframe = document.getElementById('geogebra-3d');
+            // Animation de mise à jour
+            iframe.style.filter = 'brightness(1.1)';
+            setTimeout(() => {
+                iframe.style.filter = 'brightness(1)';
+            }, 200);
+        }
+
+        // Fonctions de simulation GeoGebra
+        function showSolidInGeoGebra(solidName) {
+            console.log(`Affichage du solide: ${solidName}`);
+        }
+
+        function hideSolidInGeoGebra(solidName) {
+            console.log(`Masquage du solide: ${solidName}`);
+        }
+
+        // Basculer l'affichage des exercices
+        function toggleExercise(exerciseId) {
+            const content = document.getElementById(exerciseId + '-content');
+            content.classList.toggle('show');
+        }
+
+        // Afficher les solutions
+        function showSolution(solidType) {
+            let solution = '';
+            
+            switch(solidType) {
+                case 'cube':
+                    solution = 'Volume = 8³ = 512 cm³';
+                    break;
+                case 'sphere':
+                    solution = 'Surface = 4π × 6² = 4π × 36 = 144π ≈ 452.4 cm²';
+                    break;
+                case 'cylinder':
+                    solution = 'Volume = π × 2² × 15 = π × 4 × 15 = 60π ≈ 188.5 cm³';
+                    break;
+                case 'pyramid':
+                    solution = 'Volume = (1/3) × 4² × 12 = (1/3) × 16 × 12 = 64 cm³';
+                    break;
+            }
+            
+            alert('💡 Solution :\n' + solution);
+        }
+
+        // Amélioration de l'interface GeoGebra
+        window.addEventListener('
