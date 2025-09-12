@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcours référent IA dans l'enseignement - David LIBOY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== RESET ET FOND NOIR ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background-color: #000000 !important;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000 !important;
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #000000;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .main-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* ===== GRILLE DES MODULES ===== */
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== CARTES MODULES ===== */
+        .module-card {
+            background: #2d2d2d;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 1px solid #404040;
+        }
+
+        .module-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            border-color: #525252;
+        }
+
+        /* ===== HEADERS COLORÉS ===== */
+        .card-header {
+            height: 6px;
+            width: 100%;
+        }
+
+        .module-card:nth-child(1) .card-header {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        .module-card:nth-child(2) .card-header {
+            background: linear-gradient(90deg, #06b6d4, #67e8f9);
+        }
+
+        .module-card:nth-child(3) .card-header {
+            background: linear-gradient(90deg, #3b82f6, #93c5fd);
+        }
+
+        .module-card:nth-child(4) .card-header {
+            background: linear-gradient(90deg, #eab308, #fde047);
+        }
+
+        .module-card:nth-child(5) .card-header {
+            background: linear-gradient(90deg, #8b5cf6, #c4b5fd);
+        }
+
+        /* ===== CONTENU DES CARTES ===== */
+        .card-content {
+            padding: 32px;
+        }
+
+        .card-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .module-card:nth-child(1) .card-number {
+            background: #ef4444;
+        }
+
+        .module-card:nth-child(2) .card-number {
+            background: #06b6d4;
+        }
+
+        .module-card:nth-child(3) .card-number {
+            background: #3b82f6;
+        }
+
+        .module-card:nth-child(4) .card-number {
+            background: #eab308;
+        }
+
+        .module-card:nth-child(5) .card-number {
+            background: #8b5cf6;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .card-description {
+            font-size: 1rem;
+            color: #cbd5e1;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        /* ===== TAGS ===== */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: #404040;
+            color: #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: 1px solid #525252;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+
+            .main-title {
+                font-size: 2.2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .modules-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .card-content {
+                padding: 24px;
+            }
+
+            .card-title {
+                font-size: 1.25rem;
+            }
+
+            .card-description {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 1.8rem;
+            }
+
+            .card-content {
+                padding: 20px;
+            }
+
+            .card-number {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <h1 class="main-title">Parcours référent IA dans l'enseignement</h1>
+            <p class="subtitle">Chef d'œuvre - David LIBOY (2025)</p>
+        </header>
+
+        <!-- ===== GRILLE DES MODULES ===== -->
+        <main class="modules-grid">
+            <!-- Module 1: Site Claude -->
+            <a href="https://davidliboy.github.io/iaatschool/siteclaude" class="module-card">
+                <div class="card-header"></div>
+                <div class="card-content">
+                    <div class="card-number">1</div>
+                    <h2 class="card-title">Site pédagogique Claude</h2>
+                    <p class="card-description">
+                        Explorez une plateforme éducative interactive powered by Claude AI. 
+                        Découvrez des outils d'apprentissage personnalisés et des ressources 
+                        pédagogiques innovantes pour transformer votre enseignement.
+                    </p>
+                    <div class="card-tags">
+                        <span class="tag">Claude AI</span>
+                        <span class="tag">Interactif</span>
+                        <span class="tag">Personnalisé</span>
+                        <span class="tag">Éducation</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Module 2: Site ChatGPT -->
+            <a href="https://davidliboy.github.io/iaatschool/sitechatgpt/accueil.html" class="module-card">
+                <div class="card-header"></div>
+                <div class="card-content">
+                    <div class="card-number">2</div>
+                    <h2 class="card-title">Site pédagogique ChatGPT</h2>
+                    <p class="card-description">
+                        Accédez à une collection complète de ressources éducatives créées 
+                        avec ChatGPT. Des exercices adaptatifs aux supports de cours 
+                        innovants pour enrichir votre pratique pédagogique.
+                    </p>
+                    <div class="card-tags">
+                        <span class="tag">ChatGPT</span>
+                        <span class="tag">Ressources</span>
+                        <span class="tag">Adaptatif</span>
+                        <span class="tag">Innovation</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Module 3: Prompts -->
+            <a href="https://davidliboy.github.io/iaatschool/prompts" class="module-card">
+                <div class="card-header"></div>
+                <div class="card-content">
+                    <div class="card-number">3</div>
+                    <h2 class="card-title">Prompts optimisés</h2>
+                    <p class="card-description">
+                        Bibliothèque complète de prompts éprouvés et optimisés pour 
+                        l'éducation. Maximisez l'efficacité de vos interactions avec 
+                        les IA grâce à des formulations testées et validées.
+                    </p>
+                    <div class="card-tags">
+                        <span class="tag">Prompts</span>
+                        <span class="tag">Optimisés</span>
+                        <span class="tag">Testés</span>
+                        <span class="tag">Efficaces</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Module 4: Chatbot Créateur -->
+            <a href="https://chatgpt.com/g/g-68c076e26c9c819183e03dddd7a3c4bc-generateur-site-remediation-efpl" class="module-card">
+                <div class="card-header"></div>
+                <div class="card-content">
+                    <div class="card-number">4</div>
+                    <h2 class="card-title">Générateur de sites pédagogiques</h2>
+                    <p class="card-description">
+                        Assistant IA spécialisé pour créer automatiquement des sites 
+                        pédagogiques personnalisés. Générez du contenu de remédiation 
+                        adapté aux besoins spécifiques de vos élèves.
+                    </p>
+                    <div class="card-tags">
+                        <span class="tag">Automatisé</span>
+                        <span class="tag">Générateur</span>
+                        <span class="tag">Remédiation</span>
+                        <span class="tag">Sur-mesure</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Module 5: Divers -->
+            <a href="https://davidliboy.github.io/iaatschool/divers" class="module-card">
+                <div class="card-header"></div>
+                <div class="card-content">
+                    <div class="card-number">5</div>
+                    <h2 class="card-title">Ressources diverses</h2>
+                    <p class="card-description">
+                        Explorez une variété de ressources complémentaires : guides 
+                        pratiques, outils spécialisés, tutoriels et références pour 
+                        approfondir votre maîtrise de l'IA éducative.
+                    </p>
+                    <div class="card-tags">
+                        <span class="tag">Guides</span>
+                        <span class="tag">Outils</span>
+                        <span class="tag">Tutoriels</span>
+                        <span class="tag">Références</span>
+                    </div>
+                </div>
+            </a>
+        </main>
+    </div>
+</body>
+</html>
