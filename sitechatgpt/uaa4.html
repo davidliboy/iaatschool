@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UAA4 : Fonctions de référence – GeoGebra interactif</title>
+  <script src="https://www.geogebra.org/apps/deployggb.js"></script>
+  <style>
+    :root{
+      --bg:#0f172a; --card:#0b1220; --text:#e5e7eb;
+      --muted:#9ca3af; --good:#22c55e; --warn:#f59e0b;
+    }
+    body{
+      margin:0; background:radial-gradient(900px 600px at 110% 10%, #3b82f6, transparent), var(--bg);
+      color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      line-height:1.55;
+    }
+    header{background:linear-gradient(135deg, #3b82f6, #9333ea); padding:14px 16px}
+    header .wrap{max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:16px}
+    a.back{color:#fff; text-decoration:none; font-weight:700}
+    .container{max-width:1000px;margin:0 auto; padding:20px 16px}
+    h1{font-size:clamp(1.5rem,1.3rem + 1.4vw,2.3rem); margin:14px 0 8px 0}
+    p.lead{color:var(--muted); margin:0 0 18px 0}
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 22px}
+    button{
+      border:1px solid #1f2937; background:linear-gradient(180deg, #0ea5b7 0%, #0891b2 100%);
+      color:white; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer;
+      box-shadow:0 6px 18px rgba(8,145,178,.35);
+    }
+    button.secondary{background:#0b1220; border-color:#1f2937; box-shadow:none; color:#e2e8f0}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
+      border:1px solid #1f2937; border-radius:16px; padding:16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.25); margin-bottom:20px}
+    label{display:block; margin:6px 0}
+    input[type="number"]{width:80px; padding:4px; border-radius:6px; border:1px solid #1f2937; background:#0b1220; color:#fff}
+    details{margin-top:12px}
+    details>summary{cursor:pointer; color:#93c5fd; font-weight:700}
+    #ggb-applet{width:100%; height:500px; border:1px solid #1f2937; border-radius:12px; margin:10px 0}
+    @media print{
+      body{background:white; color:black}
+      header{background:#fff; color:#000}
+      button,.toolbar{display:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a href="accueil.html" class="back">⟵ Retour à l’accueil</a>
+      <div style="font-weight:800">IPES de Hesbaye – Mathématiques 4<sup>e</sup></div>
+    </div>
+  </header>
+  <div class="container">
+    <h1>UAA4 : Fonctions de référence – GeoGebra interactif</h1>
+    <p class="lead">Manipule les fonctions de base : affine, quadratique, inverse, valeur absolue.</p>
+
+    <div id="ggb-applet"></div>
+
+    <div class="card">
+      <h3>Options</h3>
+      <label><input type="checkbox" id="chk-affine" checked> Afficher y = ax + b</label>
+      <div> a = <input type="number" id="a" value="1"> , b = <input type="number" id="b" value="0"></div>
+
+      <label><input type="checkbox" id="chk-quadratic" checked> Afficher y = ax² + bx + c</label>
+      <div> a = <input type="number" id="qa" value="1"> , b = <input type="number" id="qb" value="0"> , c = <input type="number" id="qc" value="0"></div>
+
+      <label><input type="checkbox" id="chk-inverse"> Afficher y = k/x</label>
+      <div> k = <input type="number" id="k" value="1"></div>
+
+      <label><input type="checkbox" id="chk-abs"> Afficher y = |x|</label>
+
+      <div class="toolbar">
+        <button id="regen">🔁 Coefficients aléatoires</button>
+        <button class="secondary" onclick="window.print()">🖨️ Imprimer / PDF</button>
+      </div>
+    </div>
+
+    <details>
+      <summary>🧭 Conseils de résolution</summary>
+      <ul>
+        <li><strong>Affine</strong> : droite de pente a, ordonnée à l’origine b.</li>
+        <li><strong>Quadratique</strong> : parabole (convexe si a>0, concave si a<0).</li>
+        <li><strong>Inverse</strong> : hyperbole avec asymptotes x=0 et y=0.</li>
+        <li><strong>Valeur absolue</strong> : en V, sommet à l’origine.</li>
+      </ul>
+    </details>
+  </div>
+
+<script>
+var ggbApp = new GGBApplet({
+  "appName": "graphing",
+  "width": 800,
+  "height": 500,
+  "showToolBar": false,
+  "showMenuBar": false,
+  "showAlgebraInput": false,
+  "showResetIcon": true,
+  "enableLabelDrags": false,
+  "enableShiftDragZoom": true,
+  "capturingThreshold": null,
+  "showZoomButtons": true
+}, true);
+window.addEventListener("load", function() {
+  ggbApp.inject('ggb-applet');
+  setTimeout(initFunctions, 2000);
+});
+
+function initFunctions(){
+  updateFunctions();
+  document.querySelectorAll("input").forEach(el=>{
+    el.addEventListener("input", updateFunctions);
+  });
+}
+
+function updateFunctions(){
+  const g = window.ggbApplet;
+  if(!g) return;
+  g.reset();
+  if(document.getElementById("chk-affine").checked){
+    const a = parseFloat(document.getElementById("a").value);
+    const b = parseFloat(document.getElementById("b").value);
+    g.evalCommand(`f(x)=${a}*x+(${b})`);
+  }
+  if(document.getElementById("chk-quadratic").checked){
+    const a = parseFloat(document.getElementById("qa").value);
+    const b = parseFloat(document.getElementById("qb").value);
+    const c = parseFloat(document.getElementById("qc").value);
+    g.evalCommand(`q(x)=${a}*x^2+${b}*x+${c}`);
+  }
+  if(document.getElementById("chk-inverse").checked){
+    const k = parseFloat(document.getElementById("k").value);
+    g.evalCommand(`h(x)=${k}/x`);
+  }
+  if(document.getElementById("chk-abs").checked){
+    g.evalCommand(`abs(x)=If(x>=0,x,-x)`);
+  }
+}
+
+document.getElementById("regen").addEventListener("click",()=>{
+  document.getElementById("a").value = (Math.floor(Math.random()*5)-2);
+  document.getElementById("b").value = (Math.floor(Math.random()*10)-5);
+  document.getElementById("qa").value = (Math.floor(Math.random()*3)+1);
+  document.getElementById("qb").value = (Math.floor(Math.random()*6)-3);
+  document.getElementById("qc").value = (Math.floor(Math.random()*6)-3);
+  document.getElementById("k").value = (Math.floor(Math.random()*6)+1);
+  updateFunctions();
+});
+</script>
+</body>
+</html>

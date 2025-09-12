@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Équations du second degré – Entraîneur interactif (4e FWB)</title>
+  <style>
+    :root{
+      --bg:#0f172a; --card:#0b1220; --soft:#111827; --text:#e5e7eb;
+      --muted:#9ca3af; --accent:#22d3ee; --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; padding:24px; background:radial-gradient(900px 600px at 110% 10%, #0e7490, transparent), var(--bg);
+      color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      line-height:1.55;
+    }
+    .container{max-width:1100px;margin:0 auto}
+    h1{font-size:clamp(1.5rem,1.3rem + 1.4vw,2.3rem); margin:0 0 8px 0}
+    p.lead{color:var(--muted); margin:0 0 18px 0}
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 22px}
+    button{
+      border:1px solid #1f2937; background:linear-gradient(180deg, #0ea5b7 0%, #0891b2 100%);
+      color:white; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer;
+      box-shadow:0 6px 18px rgba(8,145,178,.35);
+    }
+    button.secondary{background:#0b1220; border-color:#1f2937; box-shadow:none; color:#e2e8f0}
+    .grid{display:grid; gap:14px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
+      border:1px solid #1f2937; border-radius:16px; padding:16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.25);
+    }
+    .eq{font-size:1.15rem; font-weight:800; letter-spacing:.2px; margin:6px 0 12px}
+    .row{background:#0b1220; border:1px solid #1f2937; border-radius:12px; padding:12px; margin-top:10px}
+    .row h3{margin:0 0 8px 0; font-size:1rem}
+    .inline{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    input[type="number"], input[type="text"]{
+      background:#04070f; color:#e5e7eb; border:1px solid #1f2937; border-radius:10px; padding:8px 10px; width:160px;
+    }
+    .msg{margin-top:8px; font-size:.95rem}
+    .good{color:var(--good)} .bad{color:var(--bad)} .muted{color:var(--muted)} .warn{color:var(--warn)}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace}
+    .choices{display:flex; gap:10px; flex-direction:column}
+    label.choice{display:flex; gap:10px; align-items:flex-start; background:#0b1220; border:1px solid #1f2937; padding:8px 10px; border-radius:10px; cursor:pointer}
+    details{margin-top:8px}
+    details>summary{cursor:pointer; color:#93c5fd; font-weight:700}
+    .pill{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.8rem; border:1px solid #1f2937}
+    @media print{
+      body{background:white; color:black}
+      .card{border-color:#bbb; box-shadow:none}
+      button,.toolbar{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Équations du second degré – Entraîneur</h1>
+    <p class="lead">Niveau <strong>4<sup>e</sup> secondaire – FWB</strong>. <em>Les informations et aides s’affichent seulement à la demande.</em></p>
+
+    <div class="toolbar">
+      <button id="regen">🔁 Générer 5 nouvelles équations</button>
+      <button class="secondary" onclick="window.print()">🖨️ Imprimer / PDF</button>
+    </div>
+
+    <div id="cards" class="grid"></div>
+  </div>
+
+<script>
+// ========= Utilities =========
+const rndInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const gcd = (a,b)=> b?gcd(b,a%b):Math.abs(a);
+function prettyFrac(n, d){
+  const g = gcd(n, d);
+  n/=g; d/=g;
+  if (d<0){ n=-n; d=-d; }
+  return d===1 ? n.toString() : n + "⁄" + d;
+}
+function sqrtIsInt(val){ const r = Math.floor(Math.sqrt(val)); return r*r===val; }
+function sqrtStr(val){ return sqrtIsInt(val) ? Math.floor(Math.sqrt(val)).toString() : "√" + val; }
+
+function formatEq(a,b,c){
+  // always show as trinôme ax² + bx + c = 0 (a,b,c all non-nuls)
+  const sign = v => v>=0 ? " + " : " − ";
+  const abs = v => Math.abs(v);
+  const aStr = (a===1) ? "x²" : (a===-1 ? "− x²" : `${a}x²`);
+  const bStr = sign(b) + (abs(b)===1 ? "x" : `${abs(b)}x`);
+  const cStr = sign(c) + `${abs(c)}`;
+  return aStr + bStr + cStr + " = 0";
+}
+
+// -------- Equation generator: ensure true trinôme (a≠0, b≠0, c≠0)
+function genEquation(){
+  let a=0,b=0,c=0;
+  while(a===0) a = rndInt(-5,5);
+  while(b===0) b = rndInt(-10,10);
+  while(c===0) c = rndInt(-10,10);
+  if(a===0) a=1; // safety
+  const D = b*b - 4*a*c;
+  return {a,b,c,D};
+}
+
+function exactSolutions(a,b,c,D){
+  if(D<0) return {count:0, exact:null, approx:null};
+  const twoa = 2*a;
+  if(D===0){
+    const num = -b, den = twoa;
+    const exact = prettyFrac(num, den);
+    const val = -b/twoa;
+    return {count:1, exact:[exact], approx:[val]};
+  }
+  const sqrtD = Math.sqrt(D);
+  const x1 = (-b + sqrtD) / (2*a);
+  const x2 = (-b - sqrtD) / (2*a);
+  const exact1 = `(${ -b } + ${sqrtStr(D)}) / ${2*a}`;
+  const exact2 = `(${ -b } - ${sqrtStr(D)}) / ${2*a}`;
+  return {count:2, exact:[exact1, exact2], approx:[x1, x2]};
+}
+
+// ---- Build 3 unique MCQ options (1 correct + 2 distractors)
+function buildThreeOptions(eq){
+  const {a,b,c,D} = eq;
+  const sol = exactSolutions(a,b,c,D);
+
+  function fmtSolution(exact, approx){
+    if(!exact){ return "Aucune solution réelle"; }
+    if(exact.length===1){
+      return `x = ${exact[0]}  (≈ ${approx[0].toFixed(2)})`;
+    }
+    return `x₁ = ${exact[0]}, x₂ = ${exact[1]}  (≈ ${approx[0].toFixed(2)} ; ${approx[1].toFixed(2)})`;
+  }
+
+  const correctText = D<0 ? "Aucune solution réelle" : fmtSolution(sol.exact, sol.approx);
+
+  const set = new Set();
+  const options = [];
+
+  function pushUnique(text, correct=false){
+    if(!set.has(text)){
+      set.add(text);
+      options.push({text, correct});
+    }
+  }
+
+  pushUnique(correctText, true);
+
+  // Candidate distractors
+  const candidates = [];
+
+  // Distractor A: “Aucune solution réelle” (only if not already correct)
+  if(correctText !== "Aucune solution réelle") candidates.push("Aucune solution réelle");
+
+  // Distractor B: only -b/(2a)
+  const only = (-b)/(2*a);
+  candidates.push(`x = ${only.toFixed(2)} (seule)`);
+
+  // Distractor C: divide by a instead of 2a
+  if(D>=0){
+    const sqrtD = Math.sqrt(D);
+    const y1 = (-b + sqrtD) / a;
+    const y2 = (-b - sqrtD) / a;
+    candidates.push(`x₁ = ${y1.toFixed(2)}, x₂ = ${y2.toFixed(2)}  (mauvais dénominateur)`);
+  }else{
+    // pretend real by using |Δ|
+    const Dabs = Math.abs(D);
+    const sqrtDabs = Math.sqrt(Dabs);
+    const y1 = (-b + sqrtDabs) / (2*a);
+    const y2 = (-b - sqrtDabs) / (2*a);
+    candidates.push(`x₁ = ${y1.toFixed(2)}, x₂ = ${y2.toFixed(2)}  (avec |Δ|)`);
+  }
+
+  // Distractor D: wrong Δ = b² + 4ac
+  const Dwrong = b*b + 4*a*c;
+  if(Dwrong>=0){
+    const sW = exactSolutions(a,b,c,Dwrong);
+    candidates.push(fmtSolution(sW.exact, sW.approx) + "  (Δ mal calculé)");
+  }else{
+    candidates.push("Aucune solution réelle  (Δ mal calculé)");
+  }
+
+  // Add candidates until we have 3 total options
+  for(const cand of candidates){
+    if(options.length>=3) break;
+    pushUnique(cand, false);
+  }
+
+  // If still less than 3 (rare), add small numeric perturbation
+  let tweak = 0.25;
+  while(options.length<3){
+    if(D>0){
+      const [x1,x2] = sol.approx;
+      const nx1 = (x1 + tweak).toFixed(2), nx2 = (x2 - tweak).toFixed(2);
+      pushUnique(`x₁ = ${nx1}, x₂ = ${nx2}  (arrondis faux)`, false);
+    }else if(D===0){
+      const val = sol.approx[0] + tweak;
+      pushUnique(`x = ${val.toFixed(2)} (≈)`, false);
+    }else{
+      pushUnique("Aucune solution réelle", false);
+    }
+    tweak += 0.17;
+  }
+
+  // Shuffle
+  for(let i=options.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [options[i],options[j]]=[options[j],options[i]]; }
+  const correctIndex = options.findIndex(o=>o.correct);
+  return {opts:options, correctIndex};
+}
+
+function cardTemplate(eq, idx){
+  const {a,b,c,D} = eq;
+  const {opts, correctIndex} = buildThreeOptions(eq);
+  const eqStr = formatEq(a,b,c);
+  const id = "ex"+idx;
+
+  return `
+    <div class="card" id="${id}" data-a="${a}" data-b="${b}" data-c="${c}" data-D="${D}" data-correct="${correctIndex}">
+      <div class="pill">Exercice ${idx+1}</div>
+      <div class="eq">${eqStr}</div>
+
+      <details>
+        <summary>🧭 Conseils de résolution</summary>
+        <ul>
+          <li>1) Identifie a, b, c dans l’équation sous la forme ax² + bx + c = 0.</li>
+          <li>2) Calcule le discriminant : Δ = b² − 4ac.</li>
+          <li>3) Choisis le cas : Δ &lt; 0 (pas de solution réelle) ; Δ = 0 (1 solution double) ; Δ &gt; 0 (2 solutions réelles).</li>
+          <li>4) Utilise la/les formule(s) : x = (−b ± √Δ) / (2a).</li>
+          <li>5) Donne une valeur approchée (au centième) si √Δ n’est pas un entier.</li>
+        </ul>
+      </details>
+
+      <!-- Bloc Δ -->
+      <div class="row">
+        <h3>1) Vérifier mon discriminant Δ</h3>
+        <div class="inline">
+          <label for="${id}-delta" class="mono">Δ = b² − 4ac =</label>
+          <input id="${id}-delta" type="number" step="1" placeholder="Entrez Δ" />
+          <button class="secondary" data-action="check-delta">Vérifier Δ</button>
+          <button class="secondary" data-action="hint-delta">Indice</button>
+          <button class="secondary" data-action="reveal-delta">Afficher Δ exact</button>
+        </div>
+        <div class="msg muted" id="${id}-delta-msg">Rappels&nbsp;: <span class="mono">a</span> coeff. de <span class="mono">x²</span>, <span class="mono">b</span> de <span class="mono">x</span>, <span class="mono">c</span> terme constant.</div>
+      </div>
+
+      <!-- Bloc Solutions -->
+      <div class="row">
+        <h3>2) Choisir la solution (3 choix)</h3>
+        <div class="choices">
+          ${opts.map((o,k)=>`
+            <label class="choice">
+              <input type="radio" name="${id}-mcq" value="${k}">
+              <div>${o.text}</div>
+            </label>
+          `).join("")}
+        </div>
+        <div class="inline" style="margin-top:8px">
+          <button class="secondary" data-action="check-mcq">Vérifier</button>
+          <button class="secondary" data-action="hint-mcq">Indice</button>
+          <button class="secondary" data-action="reveal-solution">Afficher la solution exacte</button>
+        </div>
+        <div class="msg" id="${id}-mcq-msg"></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAll(){
+  const cards = document.getElementById("cards");
+  cards.innerHTML = "";
+  const list = Array.from({length:5}, ()=> genEquation());
+
+  list.forEach((eq, i)=> { cards.insertAdjacentHTML("beforeend", cardTemplate(eq, i)); });
+
+  // Attach interactions per card
+  list.forEach((eq, i)=>{
+    const id = "ex"+i;
+    const root = document.getElementById(id);
+    const D = eq.D;
+    const a=eq.a, b=eq.b, c=eq.c;
+    const deltaMsg = document.getElementById(`${id}-delta-msg`);
+    let deltaTries = 0;
+    let deltaHintClicks = 0;
+    let mcqHintClicks = 0;
+
+    root.querySelector('[data-action="check-delta"]').addEventListener("click", ()=>{
+      const raw = document.getElementById(`${id}-delta`).value;
+      const val = Number((raw ?? "").toString().trim());
+      if(Number.isNaN(val)){ deltaMsg.innerHTML = '<span class="warn">Entre une valeur numérique pour Δ.</span>'; return; }
+      if(val===D){
+        deltaMsg.innerHTML = '<span class="good">Bravo&nbsp;! Δ est correct.</span>';
+      }else{
+        deltaTries++;
+        if(deltaTries===1){
+          deltaMsg.innerHTML = '<span class="bad">Ce n’est pas la bonne valeur.</span> <span class="muted">Indice&nbsp;: calcule séparément <span class="mono">b²</span> et <span class="mono">4ac</span>, puis soustrais.</span>';
+        }else if(deltaTries===2){
+          deltaMsg.innerHTML = `<span class="bad">Toujours faux.</span> <span class="muted">Aide&nbsp;: <span class="mono">b² = ${b*b}</span>, <span class="mono">4ac = ${4*a*c}</span>. Recalcule <span class="mono">Δ = ${b*b} − ${4*a*c}</span>.</span>`;
+        }else{
+          deltaMsg.innerHTML = `<span class="muted">Tu peux cliquer sur “Indice” (encore) ou “Afficher Δ exact”.</span>`;
+        }
+      }
+    });
+
+    root.querySelector('[data-action="hint-delta"]').addEventListener("click", ()=>{
+      deltaHintClicks++;
+      if(deltaHintClicks===1){
+        deltaMsg.innerHTML = '<span class="muted">Astuce&nbsp;: attention au signe de <span class="mono">c</span> dans <span class="mono">4ac</span> et à la priorité des opérations.</span>';
+      }else if(deltaHintClicks===2){
+        deltaMsg.innerHTML = `<span class="muted">Rappel&nbsp;: <span class="mono">a=${a}</span>, <span class="mono">b=${b}</span>, <span class="mono">c=${c}</span>.</span>`;
+      }else if(deltaHintClicks===3){
+        deltaMsg.innerHTML = `<span class="muted">Guide&nbsp;: calcule <span class="mono">b²=${b*b}</span> puis <span class="mono">4ac=${4*a*c}</span>, et fais <span class="mono">${b*b} − ${4*a*c}</span>.</span>`;
+      }else{
+        deltaMsg.innerHTML = `<span class="muted">Dernier coup de pouce&nbsp;: clique sur “Afficher Δ exact” pour vérifier ton calcul.</span>`;
+      }
+    });
+
+    root.querySelector('[data-action="reveal-delta"]').addEventListener("click", ()=>{
+      deltaMsg.innerHTML = `<span class="good">Δ exact&nbsp;: <span class="mono">${D}</span>.</span>`;
+    });
+
+    // MCQ
+    const mcqMsg = document.getElementById(`${id}-mcq-msg`);
+    const correct = Number(root.dataset.correct);
+
+    root.querySelector('[data-action="check-mcq"]').addEventListener("click", ()=>{
+      const chosen = root.querySelector(`input[name="${id}-mcq"]:checked`);
+      if(!chosen){ mcqMsg.innerHTML = '<span class="warn">Sélectionne une réponse.</span>'; return; }
+      const val = Number(chosen.value);
+      if(val===correct){
+        mcqMsg.innerHTML = '<span class="good">✅ Correct&nbsp;! Bien joué.</span>';
+      }else{
+        mcqMsg.innerHTML = '<span class="bad">❌ Incorrect.</span> <span class="muted">Clique “Indice” pour un coup de pouce supplémentaire.</span>';
+      }
+    });
+
+    root.querySelector('[data-action="hint-mcq"]').addEventListener("click", ()=>{
+      mcqHintClicks++;
+      if(mcqHintClicks===1){
+        mcqMsg.innerHTML = '<span class="muted">Indice&nbsp;: commence par déterminer le signe de <span class="mono">Δ</span> pour savoir combien de solutions réelles il y a.</span>';
+      }else if(mcqHintClicks===2){
+        mcqMsg.innerHTML = `<span class="muted">Indice 2&nbsp;: ici, <span class="mono">Δ = ${D}</span>.</span>`;
+      }else if(mcqHintClicks===3){
+        if(D<0){
+          mcqMsg.innerHTML = '<span class="muted">Indice 3&nbsp;: si <span class="mono">Δ &lt; 0</span>, il n’y a pas de solution réelle.</span>';
+        }else if(D===0){
+          mcqMsg.innerHTML = `<span class="muted">Indice 3&nbsp;: avec <span class="mono">Δ = 0</span>, utilise <span class="mono">x = -b/(2a)</span>.</span>`;
+        }else{
+          mcqMsg.innerHTML = `<span class="muted">Indice 3&nbsp;: avec <span class="mono">Δ &gt; 0</span>, applique <span class="mono">x = (−b ± √Δ)/(2a)</span>.</span>`;
+        }
+      }else{
+        mcqMsg.innerHTML = '<span class="muted">Tu peux cliquer sur “Afficher la solution exacte” si besoin.</span>';
+      }
+    });
+
+    root.querySelector('[data-action="reveal-solution"]').addEventListener("click", ()=>{
+      if(D<0){
+        mcqMsg.innerHTML = '<span class="good">Solution&nbsp;: aucune solution réelle (Δ &lt; 0).</span>';
+      }else if(D===0){
+        const val = prettyFrac(-b, 2*a);
+        mcqMsg.innerHTML = `<span class="good">Solution exacte&nbsp;: x = ${val}.</span>`;
+      }else{
+        const exact1 = `(${ -b } + ${sqrtStr(D)}) / ${2*a}`;
+        const exact2 = `(${ -b } - ${sqrtStr(D)}) / ${2*a}`;
+        mcqMsg.innerHTML = `<span class="good">Solutions exactes&nbsp;: x₁ = ${exact1}, x₂ = ${exact2}.</span>`;
+      }
+    });
+  });
+
+  // Regen button simply re-renders
+  document.getElementById("regen").onclick = renderAll;
+}
+
+renderAll();
+</script>
+</body>
+</html>

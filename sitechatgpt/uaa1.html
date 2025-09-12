@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UAA1 : Statistiques descriptives – Générateur interactif</title>
+  <style>
+    :root{
+      --bg:#0f172a; --card:#0b1220; --text:#e5e7eb;
+      --muted:#9ca3af; --good:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+    }
+    body{
+      margin:0; background:radial-gradient(900px 600px at 110% 10%, #0e7490, transparent), var(--bg);
+      color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      line-height:1.55;
+    }
+    header{background:linear-gradient(135deg, #3b82f6, #9333ea); padding:14px 16px}
+    header .wrap{max-width:1100px; margin:0 auto; display:flex; align-items:center; gap:16px}
+    a.back{color:#fff; text-decoration:none; font-weight:700}
+    .container{max-width:1000px;margin:0 auto; padding:20px 16px}
+    h1{font-size:clamp(1.5rem,1.3rem + 1.4vw,2.3rem); margin:14px 0 8px 0}
+    p.lead{color:var(--muted); margin:0 0 18px 0}
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 22px}
+    button{
+      border:1px solid #1f2937; background:linear-gradient(180deg, #0ea5b7 0%, #0891b2 100%);
+      color:white; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer;
+      box-shadow:0 6px 18px rgba(8,145,178,.35);
+    }
+    button.secondary{background:#0b1220; border-color:#1f2937; box-shadow:none; color:#e2e8f0}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
+      border:1px solid #1f2937; border-radius:16px; padding:16px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.25); margin-bottom:20px}
+    table{border-collapse:collapse; margin-top:10px}
+    td{border:1px solid #1f2937; padding:4px 8px; text-align:center}
+    .row{background:#0b1220; border:1px solid #1f2937; border-radius:12px; padding:12px; margin-top:10px}
+    .row h3{margin:0 0 8px 0; font-size:1rem}
+    .inline{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    input[type="number"]{
+      background:#04070f; color:#e5e7eb; border:1px solid #1f2937; border-radius:10px; padding:6px 10px; width:140px;
+    }
+    .msg{margin-top:6px; font-size:.95rem}
+    .good{color:var(--good)} .bad{color:var(--bad)} .muted{color:var(--muted)} .warn{color:var(--warn)}
+    details{margin-top:12px}
+    details>summary{cursor:pointer; color:#93c5fd; font-weight:700}
+    @media print{
+      body{background:white; color:black}
+      header{background:#fff; color:#000}
+      button,.toolbar{display:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <a href="accueil.html" class="back">⟵ Retour à l’accueil</a>
+      <div style="font-weight:800">IPES de Hesbaye – Mathématiques 4<sup>e</sup></div>
+    </div>
+  </header>
+  <div class="container">
+    <h1>UAA1 : Statistiques descriptives – Générateur interactif</h1>
+    <p class="lead">Exercice : calcule les indicateurs statistiques pour un jeu de 10 à 20 valeurs.</p>
+
+    <div class="toolbar">
+      <button id="regen">🔁 Générer un nouveau jeu</button>
+      <button class="secondary" onclick="window.print()">🖨️ Imprimer / PDF</button>
+    </div>
+
+    <div id="exercise" class="card"></div>
+  </div>
+
+<script>
+function rndInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+function generateData(){
+  const n = rndInt(10,20);
+  const values = Array.from({length:n}, ()=>rndInt(1,50));
+  values.sort((a,b)=>a-b);
+  return values;
+}
+
+function mean(arr){ return arr.reduce((s,v)=>s+v,0)/arr.length; }
+function median(arr){
+  const n=arr.length;
+  if(n%2===1) return arr[(n-1)/2];
+  return (arr[n/2-1]+arr[n/2])/2;
+}
+function mode(arr){
+  const freq={}; arr.forEach(v=>freq[v]=(freq[v]||0)+1);
+  const maxFreq=Math.max(...Object.values(freq));
+  const modes=Object.keys(freq).filter(k=>freq[k]===maxFreq).map(Number);
+  if(modes.length===arr.length) return "aucun";
+  return modes.join(", ");
+}
+function range(arr){ return Math.max(...arr)-Math.min(...arr); }
+function stdDev(arr){
+  const m=mean(arr);
+  const variance=arr.reduce((s,v)=>s+(v-m)**2,0)/arr.length;
+  return Math.sqrt(variance);
+}
+
+function renderExercise(){
+  const exDiv=document.getElementById("exercise");
+  const data=generateData();
+  const sol={
+    mean:mean(data),
+    median:median(data),
+    mode:mode(data),
+    range:range(data),
+    std:stdDev(data)
+  };
+  exDiv.innerHTML=`
+    <p><strong>Données (classées) :</strong></p>
+    <table><tr>${data.map(v=>`<td>${v}</td>`).join("")}</tr></table>
+
+    <details>
+      <summary>🧭 Conseils de résolution</summary>
+      <ul>
+        <li>1) Classe les données (déjà fait).</li>
+        <li>2) Calcule la moyenne : somme ÷ n.</li>
+        <li>3) Trouve la médiane : valeur centrale (ou moyenne des 2 centrales).</li>
+        <li>4) Trouve le(s) mode(s) : valeur(s) la/les plus fréquente(s).</li>
+        <li>5) Calcule l’étendue : max − min.</li>
+        <li>6) Calcule l’écart-type : √[(Σ(x−m)²)/n].</li>
+      </ul>
+    </details>
+
+    ${buildRow("Moyenne","mean",sol.mean)}
+    ${buildRow("Médiane","median",sol.median)}
+    ${buildRow("Mode","mode",sol.mode)}
+    ${buildRow("Étendue","range",sol.range)}
+    ${buildRow("Écart-type","std",sol.std)}
+  `;
+
+  attachCheckers(sol);
+}
+
+function buildRow(label,key,value){
+  return `
+    <div class="row" data-key="${key}" data-value="${value}">
+      <h3>${label}</h3>
+      <div class="inline">
+        <input type="text" placeholder="Réponse" />
+        <button class="secondary" data-action="check">Vérifier</button>
+        <button class="secondary" data-action="hint">Indice</button>
+        <button class="secondary" data-action="reveal">Afficher</button>
+      </div>
+      <div class="msg muted"></div>
+    </div>`;
+}
+
+function attachCheckers(sol){
+  document.querySelectorAll(".row").forEach(row=>{
+    const key=row.dataset.key;
+    const val=row.dataset.value;
+    let hintClicks=0;
+    row.querySelector('[data-action="check"]').addEventListener("click",()=>{
+      const inp=row.querySelector("input").value.trim();
+      const msg=row.querySelector(".msg");
+      let correct=false;
+      if(key==="mode"){
+        correct = inp===sol.mode;
+      }else{
+        const num=parseFloat(inp.replace(",","."));
+        if(!isNaN(num)){
+          if(key==="mean"||key==="std"){
+            correct=Math.abs(num-parseFloat(val))<0.1;
+          }else{
+            correct=Math.abs(num-parseFloat(val))<0.0001;
+          }
+        }
+      }
+      msg.innerHTML = correct? `<span class="good">✅ Correct</span>` : `<span class="bad">❌ Incorrect. Clique “Indice” si besoin.</span>`;
+    });
+    row.querySelector('[data-action="hint"]').addEventListener("click",()=>{
+      const msg=row.querySelector(".msg"); hintClicks++;
+      if(key==="mean"){
+        if(hintClicks===1) msg.innerHTML='<span class="muted">Indice : additionne toutes les valeurs puis divise par n.</span>';
+        else if(hintClicks===2) msg.innerHTML='<span class="muted">Somme = '+sol.mean.toFixed(2)+' × n</span>';
+        else msg.innerHTML='<span class="muted">Tu peux révéler la réponse.</span>';
+      }
+      else if(key==="median"){
+        if(hintClicks===1) msg.innerHTML='<span class="muted">Indice : regarde la position centrale.</span>';
+        else msg.innerHTML='<span class="muted">Nombre de valeurs = '+Object.keys(sol).length+'.</span>';
+      }
+      else if(key==="mode"){
+        if(hintClicks===1) msg.innerHTML='<span class="muted">Indice : quelle valeur revient le plus souvent ?</span>';
+        else msg.innerHTML='<span class="muted">S’il n’y a pas de valeur dominante, réponds “aucun”.</span>';
+      }
+      else if(key==="range"){
+        msg.innerHTML='<span class="muted">Indice : max − min.</span>';
+      }
+      else if(key==="std"){
+        if(hintClicks===1) msg.innerHTML='<span class="muted">Indice : utilise la formule √[(Σ(x−m)²)/n].</span>';
+        else msg.innerHTML='<span class="muted">Moyenne = '+sol.mean.toFixed(2)+'.</span>';
+      }
+    });
+    row.querySelector('[data-action="reveal"]').addEventListener("click",()=>{
+      const msg=row.querySelector(".msg");
+      if(key==="mean") msg.innerHTML='<span class="good">Moyenne = '+parseFloat(val).toFixed(2)+'</span>';
+      else if(key==="std") msg.innerHTML='<span class="good">Écart-type = '+parseFloat(val).toFixed(2)+'</span>';
+      else msg.innerHTML='<span class="good">'+row.querySelector("h3").textContent+' = '+val+'</span>';
+    });
+  });
+}
+
+document.getElementById("regen").addEventListener("click",renderExercise);
+renderExercise();
+</script>
+</body>
+</html>
